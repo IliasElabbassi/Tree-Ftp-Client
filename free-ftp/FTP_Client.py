@@ -1,12 +1,13 @@
 from distutils.log import error
 from queue import Empty
-from re import S
+from re import S, VERBOSE
 import socket
 import sys
 import logging
 
 BUFFER_SIZE = 4080 # buffer size
 FORMAT = "utf-8"
+VERBOSE = True
 
 class FTP_Client:
     def __init__(self, host, username):
@@ -23,18 +24,6 @@ class FTP_Client:
             level=logging.DEBUG,
             format='%(asctime)s:%(levelname)s:%(message)s'
             )
-
-    def getMsg(self):
-        try:
-            return self.socket.recv(BUFFER_SIZE).decode(FORMAT)
-        except:
-            logging.error("in getMsg :")
-    
-    def read(self):
-        data = self.getMsg()
-        while data:
-            print(data)
-            data = self.getMsg()
 
     def buffered_readLine(self):
         line = ""
@@ -54,7 +43,25 @@ class FTP_Client:
         except socket.error:
             logging.error("connection to the distant server failed {0}:{1}".format(self.HOST, self.PORT))
             sys.exit()
-        
+
+        try:
+            if VERBOSE:
+                print("$ USER")
+            self.socket.send("USER {0}\r\n".format(self.USERNAME).encode(FORMAT))
+            print(self.buffered_readLine())
+        except:
+            logging.error("failed CONNECT:USER !!!")
+            return
+
+        try:
+            if VERBOSE:
+                print("$ PASS")
+            self.socket.send("PASS RV\r\n".encode(FORMAT))
+            print(self.buffered_readLine())
+        except:
+            logging.error("failed CONNECT:PASS !!!")
+            return
+
 
     """
     LIST: Show information of a specific file/folder or current folder
@@ -70,7 +77,7 @@ class FTP_Client:
         try:
             # send LIST cmd to the ftp server
             self.socket.send("LIST".encode(FORMAT))
-            print(self.read())
+            print(self.buffered_readLine())
         except:
             logging.error("Couldn't make the request")
             return
@@ -91,6 +98,10 @@ def main():
         print("need args : HOST USERNAME")
         sys.exit()
 
+    for ele in sys.argv:
+        if ele == "-v" or ele == "-V":
+            VERBOSE = True
+
     #host = "ftp.free.fr"
     host = sys.argv[1]
     username = sys.argv[2]
@@ -100,7 +111,7 @@ def main():
         username=username
     )
     ftp_client.connect()
-    ftp_client.HELP()
+    #ftp_client.HELP()
 
 if __name__ == "__main__":
     main()
