@@ -7,7 +7,7 @@ import logging
 
 BUFFER_SIZE = 4080 # buffer size
 FORMAT = "utf-8"
-VERBOSE = True
+VERBOSE = False
 
 class FTP_Client:
     def __init__(self, host, username):
@@ -34,6 +34,16 @@ class FTP_Client:
             elif part == "\n":
                 break
         return line
+    
+    def read_multiple_line(self):
+        read = True
+        data = self.buffered_readLine()
+        while read:
+            if data.__contains__('OK.'):
+                read = False
+            else:
+                print(data)
+                data = self.buffered_readLine()
 
     def connect(self):
         try:
@@ -47,6 +57,7 @@ class FTP_Client:
         try:
             if VERBOSE:
                 print("$ USER")
+            logging.info("send USER {0} cmd to {1}:{2}".format(self.USERNAME, self.HOST, self.PORT))
             self.socket.send("USER {0}\r\n".format(self.USERNAME).encode(FORMAT))
             print(self.buffered_readLine())
         except:
@@ -56,6 +67,7 @@ class FTP_Client:
         try:
             if VERBOSE:
                 print("$ PASS")
+            logging.info("send PASS cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("PASS RV\r\n".encode(FORMAT))
             print(self.buffered_readLine())
         except:
@@ -76,7 +88,10 @@ class FTP_Client:
 
         try:
             # send LIST cmd to the ftp server
-            self.socket.send("LIST".encode(FORMAT))
+            if VERBOSE:
+                print("$ LIST")
+            logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT))
+            self.socket.send("LIST\r\n".encode(FORMAT))
             print(self.buffered_readLine())
         except:
             logging.error("Couldn't make the request")
@@ -86,8 +101,12 @@ class FTP_Client:
         logging.info("Starting HELP method...")
 
         try:
-            self.socket.send("HELP".encode(FORMAT))
-            print(self.buffered_readLine())
+            if VERBOSE:
+                print("$ HELP")
+            logging.info("send HELP cmd to {0}:{1}".format(self.HOST, self.PORT))
+            self.socket.send("HELP\r\n".encode(FORMAT))
+            self.read_multiple_line()
+
         except:
             logging.error("in HELP:HELP")
             return
@@ -98,9 +117,12 @@ def main():
         print("need args : HOST USERNAME")
         sys.exit()
 
-    for ele in sys.argv:
-        if ele == "-v" or ele == "-V":
+    try:
+        if sys.argv[3] == '-v':
             VERBOSE = True
+    except:
+        pass
+    
 
     #host = "ftp.free.fr"
     host = sys.argv[1]
@@ -111,7 +133,7 @@ def main():
         username=username
     )
     ftp_client.connect()
-    #ftp_client.HELP()
+    ftp_client.HELP()
 
 if __name__ == "__main__":
     main()
