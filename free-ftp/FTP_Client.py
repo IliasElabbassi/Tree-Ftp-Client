@@ -1,4 +1,5 @@
 from distutils.log import error
+from lib2to3.pytree import Base
 from queue import Empty
 from re import S, VERBOSE
 import socket
@@ -54,6 +55,8 @@ class FTP_Client:
             logging.error("connection to the distant server failed {0}:{1}".format(self.HOST, self.PORT))
             sys.exit()
 
+
+    def USER(self):
         try:
             if VERBOSE:
                 print("$ USER")
@@ -64,6 +67,7 @@ class FTP_Client:
             logging.error("failed CONNECT:USER !!!")
             return
 
+    def PASS(self):
         try:
             if VERBOSE:
                 print("$ PASS")
@@ -74,6 +78,27 @@ class FTP_Client:
             logging.error("failed CONNECT:PASS !!!")
             return
 
+    def PASV(self):
+        try:
+            if VERBOSE:
+                print("$ PASV")
+            logging.info("send PASV cmd to {0}:{1}".format(self.HOST, self.PORT))
+            self.socket.send("PASV\r\n".encode(FORMAT))
+            print(self.buffered_readLine())
+        except BaseException:
+            logging.error("failled CONNECT:PASV !!!")
+            return
+
+    def PORT(self, port):
+        try:
+            if VERBOSE:
+                print("$ PORT")
+            logging.info("send PORT {2} cmd to {0}:{1}".format(self.HOST, self.PORT, port))
+            self.socket.send("PRT {0}\r\n".format(port).encode(FORMAT))
+            print(self.buffered_readLine())
+        except BaseException:
+            logging.error("failled CONNECT:PORT !!!")
+            return
 
     """
     LIST: Show information of a specific file/folder or current folder
@@ -92,9 +117,10 @@ class FTP_Client:
                 print("$ LIST")
             logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("LIST\r\n".encode(FORMAT))
-            print(self.buffered_readLine())
+            while True:
+                print(self.buffered_readLine())
         except:
-            logging.error("Couldn't make the request")
+            logging.error("failed LIST_FILES:LIST !!!")
             return
     
     def HELP(self):
@@ -108,9 +134,8 @@ class FTP_Client:
             self.read_multiple_line()
 
         except:
-            logging.error("in HELP:HELP")
+            logging.error("failed HELP:HELP !!!")
             return
-
 
 def main():
     if len(sys.argv) < 3:
@@ -133,7 +158,12 @@ def main():
         username=username
     )
     ftp_client.connect()
-    ftp_client.HELP()
+    ftp_client.USER()
+    ftp_client.PASS()
+    #ftp_client.HELP()
+    #ftp_client.PASV()
+    #ftp_client.PORT(21)
+    #ftp_client.list_files()
 
 if __name__ == "__main__":
     main()
