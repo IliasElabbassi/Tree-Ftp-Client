@@ -54,47 +54,6 @@ class FTP_Client:
         except socket.error:
             logging.error("connection to the distant server failed {0}:{1}".format(self.HOST, self.PORT))
             sys.exit()
-
-    """
-        try:
-            print("$ AUTH")
-            self.socket.send("AUTH".encode(FORMAT))
-            print(self.buffered_readLine())
-            logging.info("send AUTH SSL cmd to {0}:{1}".format(self.HOST, self.PORT))
-        except:
-            logging.error("in CONNECT:AUTH")
-    
-        try:
-            print("$ USER anonymous")
-            self.socket.send("USER anonymous".encode(FORMAT))
-            logging.info("send USER anonymous cmd to {0}:{1}".format(self.HOST, self.PORT))
-            print(self.getMsg())
-        except:
-            logging.error("in CONNECT:USER")
-        try:
-            print("$ PASS ********")
-            self.socket.send("PASS ********".encode(FORMAT))
-            logging.info("send PASS ******** cmd to {0}:{1}".format(self.HOST, self.PORT))
-            print(self.getMsg())
-        except:
-            logging.error("in CONNECT:PASS")
-
-        try:
-            print("$ SYS")
-            self.socket.send("SYS".encode(FORMAT))
-            logging.info("send SYS cmd to {0}:{1}".format(self.HOST, self.PORT))
-            print(self.getMsg())
-        except:
-            logging.error("in CONNECT:SYS")
-
-        try:
-            print("$ FEAT")
-            self.socket.send("FEAT".encode(FORMAT))
-            logging.info("send FEAT cmd to {0}:{1}".format(self.HOST, self.PORT))
-            print(self.getMsg())
-        except:
-            logging.error("in CONNECT:FEAT")
-    """
         
 
     """
