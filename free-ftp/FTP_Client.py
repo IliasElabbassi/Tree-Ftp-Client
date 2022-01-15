@@ -1,7 +1,4 @@
 from distutils.log import error
-from lib2to3.pytree import Base
-from queue import Empty
-from re import S, VERBOSE
 import socket
 import sys
 import logging
@@ -24,7 +21,7 @@ class FTP_Client:
             filename='test.log',
             level=logging.DEBUG,
             format='%(asctime)s:%(levelname)s:%(message)s'
-            )
+        )
 
     def buffered_readLine(self):
         line = ""
@@ -89,12 +86,12 @@ class FTP_Client:
             logging.error("failled CONNECT:PASV !!!")
             return
 
-    def PORT(self, port):
+    def CMD_PORT(self):
         try:
             if VERBOSE:
-                print("$ PORT")
-            logging.info("send PORT {2} cmd to {0}:{1}".format(self.HOST, self.PORT, port))
-            self.socket.send("PRT {0}\r\n".format(port).encode(FORMAT))
+                print("$ PORT {0}".format(self.PORT))
+            logging.info("send PORT {0} cmd to {1}:{2}".format(self.PORT, self.HOST, self.PORT))
+            self.socket.send("PRT {0}\r\n".format(self.PORT).encode(FORMAT))
             print(self.buffered_readLine())
         except BaseException:
             logging.error("failled CONNECT:PORT !!!")
@@ -109,15 +106,13 @@ class FTP_Client:
         -
     """
     def list_files(self):
-        logging.info("Starting list_files() method...")
-
         try:
             # send LIST cmd to the ftp server
             if VERBOSE:
                 print("$ LIST")
             logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("LIST\r\n".encode(FORMAT))
-            while True:
+            for i in range(0,20):
                 print(self.buffered_readLine())
         except:
             logging.error("failed LIST_FILES:LIST !!!")
@@ -161,9 +156,9 @@ def main():
     ftp_client.USER()
     ftp_client.PASS()
     #ftp_client.HELP()
-    #ftp_client.PASV()
-    #ftp_client.PORT(21)
-    #ftp_client.list_files()
+    ftp_client.PASV()
+    #ftp_client.CMD_PORT()
+    ftp_client.list_files()
 
 if __name__ == "__main__":
     main()
