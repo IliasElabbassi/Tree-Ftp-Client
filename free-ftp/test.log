@@ -1,2 +1,5 @@
-2022-01-15 19:26:39,251:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 with username : ilias
-2022-01-15 19:27:26,906:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 20:26:09,072:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 20:26:09,088:ERROR:in CONNECT : 
+2022-01-15 20:26:56,788:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 20:27:59,865:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 20:27:59,878:INFO:Starting HELP method...
