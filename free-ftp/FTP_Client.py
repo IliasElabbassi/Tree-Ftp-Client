@@ -5,7 +5,7 @@ import socket
 import sys
 import logging
 
-BUFFER_SIZE = 1024 # standard buffer size
+BUFFER_SIZE = 4080 # buffer size
 FORMAT = "utf-8"
 
 class FTP_Client:
@@ -48,10 +48,46 @@ class FTP_Client:
             sys.exit()
 
         try:
-            self.socket.send("AUTH".encode(FORMAT))
+            print("$ AUTH SSL")
+            self.socket.send("AUTH SSL".encode(FORMAT))
+            logging.info("send AUTH SSL cmd to {0}:{1}".format(self.HOST, self.PORT))
             print(self.getMsg())
         except:
-            logging.error("in CONNECT : ")
+            logging.error("in CONNECT:AUTH")
+
+        try:
+            print("$ USER anonymous")
+            self.socket.send("USER anonymous".encode(FORMAT))
+            logging.info("send USER anonymous cmd to {0}:{1}".format(self.HOST, self.PORT))
+            print(self.getMsg())
+        except:
+            logging.error("in CONNECT:USER")
+
+        try:
+            print("$ PASS ********")
+            self.socket.send("PASS ********".encode(FORMAT))
+            logging.info("send PASS ******** cmd to {0}:{1}".format(self.HOST, self.PORT))
+            print(self.getMsg())
+        except:
+            logging.error("in CONNECT:PASS")
+
+        try:
+            print("$ SYS")
+            self.socket.send("SYS".encode(FORMAT))
+            logging.info("send SYS cmd to {0}:{1}".format(self.HOST, self.PORT))
+            print(self.getMsg())
+        except:
+            logging.error("in CONNECT:SYS")
+
+        try:
+            print("$ FEAT")
+            self.socket.send("FEAT".encode(FORMAT))
+            logging.info("send FEAT cmd to {0}:{1}".format(self.HOST, self.PORT))
+            print(self.getMsg())
+        except:
+            logging.error("in CONNECT:FEAT")
+
+        
 
     """
     LIST: Show information of a specific file/folder or current folder
@@ -76,24 +112,10 @@ class FTP_Client:
         logging.info("Starting HELP method...")
 
         try:
-            # send LIST cmd to the ftp server
-            self.socket.send("HELP\r\n".encode(FORMAT))
+            self.socket.send("HELP".encode(FORMAT))
             print(self.getMsg())
         except:
-            logging.error("Couldn't make the request")
-            return
-
-        try:
-            reply = ""
-            while True:
-                temp = self.socket.recv(BUFFER_SIZE)
-                if temp:
-                    reply += temp
-                else:
-                    break
-            print(reply)
-        except NameError:
-            logging.error("in HELP: {0}".format(NameError))
+            logging.error("in HELP:HELP")
             return
 
 
