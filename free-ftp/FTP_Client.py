@@ -31,30 +31,39 @@ class FTP_Client:
             logging.error("in getMsg :")
     
     def read(self):
-        buffer = ""
         data = self.getMsg()
         while data:
-            buffer+=data
-            data=self.getMsg
-        
-        return buffer
+            print(data)
+            data = self.getMsg()
+
+    def buffered_readLine(self):
+        line = ""
+        while True:
+            part = self.socket.recv(1).decode(FORMAT)
+            if part != "\n":
+                line+=part
+            elif part == "\n":
+                break
+        return line
 
     def connect(self):
         try:
             self.socket.connect((self.HOST, self.PORT))
+            print(self.buffered_readLine())
             logging.info("Connection to the distant ftp server succeed {0}:{1} as {2}".format(self.HOST, self.PORT, self.USERNAME))
         except socket.error:
             logging.error("connection to the distant server failed {0}:{1}".format(self.HOST, self.PORT))
             sys.exit()
 
+    """
         try:
-            print("$ AUTH SSL")
-            self.socket.send("AUTH SSL".encode(FORMAT))
+            print("$ AUTH")
+            self.socket.send("AUTH".encode(FORMAT))
+            print(self.buffered_readLine())
             logging.info("send AUTH SSL cmd to {0}:{1}".format(self.HOST, self.PORT))
-            print(self.getMsg())
         except:
             logging.error("in CONNECT:AUTH")
-
+    
         try:
             print("$ USER anonymous")
             self.socket.send("USER anonymous".encode(FORMAT))
@@ -62,7 +71,6 @@ class FTP_Client:
             print(self.getMsg())
         except:
             logging.error("in CONNECT:USER")
-
         try:
             print("$ PASS ********")
             self.socket.send("PASS ********".encode(FORMAT))
@@ -86,7 +94,7 @@ class FTP_Client:
             print(self.getMsg())
         except:
             logging.error("in CONNECT:FEAT")
-
+    """
         
 
     """
@@ -103,7 +111,7 @@ class FTP_Client:
         try:
             # send LIST cmd to the ftp server
             self.socket.send("LIST".encode(FORMAT))
-            print(self.getMsg())
+            print(self.read())
         except:
             logging.error("Couldn't make the request")
             return
@@ -113,7 +121,7 @@ class FTP_Client:
 
         try:
             self.socket.send("HELP".encode(FORMAT))
-            print(self.getMsg())
+            print(self.buffered_readLine())
         except:
             logging.error("in HELP:HELP")
             return

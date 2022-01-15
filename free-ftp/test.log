@@ -1,7 +1,6 @@
-2022-01-15 20:39:58,975:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
-2022-01-15 20:39:58,975:INFO:send AUTH SSL cmd to ftp.free.fr:21
-2022-01-15 20:39:58,991:INFO:send USER anonymous cmd to ftp.free.fr:21
-2022-01-15 20:40:03,985:INFO:send PASS ******** cmd to ftp.free.fr:21
-2022-01-15 20:40:03,985:INFO:send SYS cmd to ftp.free.fr:21
-2022-01-15 20:40:03,985:INFO:send FEAT cmd to ftp.free.fr:21
-2022-01-15 20:40:03,985:INFO:Starting HELP method...
+2022-01-15 20:59:50,597:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 20:59:55,670:INFO:send AUTH SSL cmd to ftp.free.fr:21
+2022-01-15 20:59:55,670:INFO:send USER anonymous cmd to ftp.free.fr:21
+2022-01-15 21:02:10,044:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 21:02:28,848:INFO:Connection to the distant ftp server succeed ftp.free.fr:21 as ilias
+2022-01-15 21:02:28,848:INFO:Starting HELP method...
