@@ -105,20 +105,54 @@ class FTP_Client:
                 print("$ PASV")
             logging.info("send PASV cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("PASV\r\n".encode(FORMAT))
-            print(self.buffered_readLine())
+            data = self.buffered_readLine()
+            print(data)
+            new = self.PASV_get_new_url(data)
+            print(new)
+            self.connect_args(new[0], new[1])
         except BaseException:
             logging.error("failled CONNECT:PASV !!!")
             return
 
-    def CMD_PORT(self):
+    def PASV_get_new_url(self, data):
+        data_split = data.split(" ")
+        data_split = data_split[len(data_split)-1].split(",")
+        data_split[0] = data_split[0].replace("(","")
+        data_split[len(data_split)-1] = data_split[len(data_split)-1].replace(")","")
+        data_split[len(data_split)-1] = data_split[len(data_split)-1].replace(".","")
+
+        url = "{0}.{1}.{2}.{3}".format(
+            data_split[0],
+            data_split[1],
+            data_split[2],
+            data_split[3],
+        )
+
+        port = int(data_split[4])*256+int(data_split[5])
+
+        return (url, str(port))
+
+    def connect_args(self, host, port):
+        """
+        Connect to the ftp server, with different host/port
+        """
+        try:
+            self.new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.new_socket.connect((host, int(port)))
+            logging.info("Connection to the distant ftp server succeed {0}:{1} as {2}".format(host, port, self.USERNAME))
+        except socket.error:
+            logging.error("connection to the distant server failed {0}:{1}".format(host, port))
+            sys.exit()
+
+    def CMD_PORT(self, port):
         """
         PORT: change port of the conenction
         """
         try:
             if VERBOSE:
-                print("$ PORT {0}".format(self.PORT))
-            logging.info("send PORT {0} cmd to {1}:{2}".format(self.PORT, self.HOST, self.PORT))
-            self.socket.send("PRT {0}\r\n".format(self.PORT).encode(FORMAT))
+                print("$ PORT {0}".format(port))
+            logging.info("send PORT {0} cmd to {1}:{2}".format(port, self.HOST, self.PORT))
+            self.socket.send("PORT {0}\r\n".format(port).encode(FORMAT))
             print(self.buffered_readLine())
         except BaseException:
             logging.error("failled CONNECT:PORT !!!")
@@ -140,12 +174,11 @@ class FTP_Client:
                 print("$ LIST")
             logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("LIST\r\n".encode(FORMAT))
-            for i in range(0,20):
-                print(self.buffered_readLine())
+            print(self.buffered_readLine())
+            print(self.buffered_readLine())
         except:
             logging.error("failed LIST_FILES:LIST !!!")
             raise
-            return
     
   
     def HELP(self):
@@ -158,9 +191,22 @@ class FTP_Client:
             logging.info("send HELP cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("HELP\r\n".encode(FORMAT))
             self.read_multiple_line()
-
         except:
             logging.error("failed HELP:HELP !!!")
+            return
+
+    def CMD(self, cmd_str):
+        """
+        CMD: send cmd_str to ftp server
+        """
+        try:
+            if VERBOSE:
+                print("$ {0}".format(cmd_str))
+            logging.info("send {0} cmd to {1}:{2}".format(cmd_str, self.HOST, self.PORT))
+            self.socket.send("{0}\r\n".format(cmd_str).encode(FORMAT))
+            print(self.buffered_readLine())
+        except:
+            logging.error("failed HELP:{0} !!!".format(cmd_str))
             return
 
 def main():
@@ -192,8 +238,8 @@ def main():
     ftp_client.USER()
     ftp_client.PASS()
     #ftp_client.HELP()
-    #ftp_client.PASV()
-    #ftp_client.CMD_PORT()
+    ftp_client.PASV()
+    #ftp_client.CMD_PORT(21)
     ftp_client.list_files()
 
 if __name__ == "__main__":
