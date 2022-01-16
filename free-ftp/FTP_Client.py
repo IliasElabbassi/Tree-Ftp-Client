@@ -5,10 +5,16 @@ import logging
 
 BUFFER_SIZE = 4080 # buffer size
 FORMAT = "utf-8"
-VERBOSE = False
+VERBOSE = True
 
 class FTP_Client:
     def __init__(self, host, username):
+        """
+        PORT : to port of the ftp server
+        HOST : the ip/url of the ftp server
+        USERNAME : username set form the conenction
+        socket : the socket that permit us to send and receiv data from the ftp server
+        """
         self.PORT = 21 
         self.HOST = host
         self.USERNAME = username
@@ -24,6 +30,9 @@ class FTP_Client:
         )
 
     def buffered_readLine(self):
+        """
+        Read single line from server
+        """
         line = ""
         while True:
             part = self.socket.recv(1).decode(FORMAT)
@@ -34,6 +43,9 @@ class FTP_Client:
         return line
     
     def read_multiple_line(self):
+        """
+        Read multiple line from server
+        """
         read = True
         data = self.buffered_readLine()
         while read:
@@ -44,6 +56,9 @@ class FTP_Client:
                 data = self.buffered_readLine()
 
     def connect(self):
+        """
+        Connect to the ftp server
+        """
         try:
             self.socket.connect((self.HOST, self.PORT))
             print(self.buffered_readLine())
@@ -52,8 +67,10 @@ class FTP_Client:
             logging.error("connection to the distant server failed {0}:{1}".format(self.HOST, self.PORT))
             sys.exit()
 
-
     def USER(self):
+        """
+        USER: set user name
+        """
         try:
             if VERBOSE:
                 print("$ USER")
@@ -65,6 +82,9 @@ class FTP_Client:
             return
 
     def PASS(self):
+        """
+        PASS: set a password
+        """
         try:
             if VERBOSE:
                 print("$ PASS")
@@ -75,7 +95,11 @@ class FTP_Client:
             logging.error("failed CONNECT:PASS !!!")
             return
 
+
     def PASV(self):
+        """
+        PASV: goes into passive mode
+        """
         try:
             if VERBOSE:
                 print("$ PASV")
@@ -87,6 +111,9 @@ class FTP_Client:
             return
 
     def CMD_PORT(self):
+        """
+        PORT: change port of the conenction
+        """
         try:
             if VERBOSE:
                 print("$ PORT {0}".format(self.PORT))
@@ -97,15 +124,16 @@ class FTP_Client:
             logging.error("failled CONNECT:PORT !!!")
             return
 
-    """
-    LIST: Show information of a specific file/folder or current folder
 
-    this method will send a LIST commande to the FTP server and process the data received acordingly:
-        -
-        -
-        -
-    """
     def list_files(self):
+        """
+        LIST: Show information of a specific file/folder or current folder
+
+        this method will send a LIST commande to the FTP server and process the data received acordingly:
+            -
+            -
+            -
+        """
         try:
             # send LIST cmd to the ftp server
             if VERBOSE:
@@ -116,11 +144,14 @@ class FTP_Client:
                 print(self.buffered_readLine())
         except:
             logging.error("failed LIST_FILES:LIST !!!")
+            raise
             return
     
+  
     def HELP(self):
-        logging.info("Starting HELP method...")
-
+        """
+        HELP: display all the cmd I can make
+        """
         try:
             if VERBOSE:
                 print("$ HELP")
@@ -133,30 +164,35 @@ class FTP_Client:
             return
 
 def main():
+    """
     if len(sys.argv) < 3:
         print("need args : HOST USERNAME")
         sys.exit()
 
     try:
-        if sys.argv[3] == '-v':
+        if sys.argv[3] == "-v":
             VERBOSE = True
     except:
         pass
+    """
     
+    try:
+        #host = "ftp.free.fr"
+        host = sys.argv[1]
+        username = sys.argv[2]
+    except:
+        pass
 
-    #host = "ftp.free.fr"
-    host = sys.argv[1]
-    username = sys.argv[2]
 
     ftp_client = FTP_Client(
-        host=host,  
-        username=username
+        host="ftp.ubuntu.com",  
+        username="anonymous"
     )
     ftp_client.connect()
     ftp_client.USER()
     ftp_client.PASS()
     #ftp_client.HELP()
-    ftp_client.PASV()
+    #ftp_client.PASV()
     #ftp_client.CMD_PORT()
     ftp_client.list_files()
 

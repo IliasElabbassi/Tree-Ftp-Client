@@ -1,41 +1,17 @@
-2022-01-15 23:18:39,664:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:18:39,664:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:18:39,681:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:19:53,056:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:19:53,056:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:19:53,089:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:01,697:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:20:01,697:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:01,723:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:03,906:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:20:03,906:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:03,921:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:25,500:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:20:25,500:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:25,525:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:25,542:INFO:send PORT 21 cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:43,008:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:20:43,016:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:43,034:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:20:43,050:INFO:Starting HELP method...
-2022-01-15 23:20:43,050:INFO:send HELP cmd to ftp.ubuntu.com:21
-2022-01-15 23:21:17,529:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:21:17,529:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:21:17,547:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:21:17,564:INFO:send PASV cmd to ftp.ubuntu.com:21
-2022-01-15 23:22:53,157:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:22:53,157:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:22:53,173:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:22:53,188:INFO:send PASV cmd to ftp.ubuntu.com:21
-2022-01-15 23:22:53,220:INFO:send LIST cmd to ftp.ubuntu.com:21
-2022-01-15 23:29:15,797:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:29:15,797:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:29:15,815:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:29:15,833:INFO:send PASV cmd to ftp.ubuntu.com:21
-2022-01-15 23:29:15,854:INFO:send LIST cmd to ftp.ubuntu.com:21
-2022-01-15 23:33:00,876:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
-2022-01-15 23:33:00,876:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
-2022-01-15 23:33:00,892:INFO:send PASS cmd to ftp.ubuntu.com:21
-2022-01-15 23:33:00,908:INFO:send PASV cmd to ftp.ubuntu.com:21
-2022-01-15 23:33:00,923:INFO:send LIST cmd to ftp.ubuntu.com:21
-2022-01-15 23:39:00,990:ERROR:failed LIST_FILES:LIST !!!
+2022-01-16 12:40:57,174:ERROR:failed LIST_FILES:LIST !!!
+2022-01-16 12:44:28,735:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
+2022-01-16 12:44:28,736:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
+2022-01-16 12:44:28,755:INFO:send PASS cmd to ftp.ubuntu.com:21
+2022-01-16 12:44:28,773:INFO:send PASV cmd to ftp.ubuntu.com:21
+2022-01-16 12:44:28,792:INFO:send LIST cmd to ftp.ubuntu.com:21
+2022-01-16 12:45:28,865:ERROR:failed LIST_FILES:LIST !!!
+2022-01-16 12:45:46,538:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
+2022-01-16 12:45:46,538:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
+2022-01-16 12:45:46,558:INFO:send PASS cmd to ftp.ubuntu.com:21
+2022-01-16 12:45:46,576:INFO:Starting HELP method...
+2022-01-16 12:45:46,576:INFO:send HELP cmd to ftp.ubuntu.com:21
+2022-01-16 12:46:09,918:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
+2022-01-16 12:46:09,919:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
+2022-01-16 12:46:09,938:INFO:send PASS cmd to ftp.ubuntu.com:21
+2022-01-16 12:46:09,957:INFO:send LIST cmd to ftp.ubuntu.com:21
+2022-01-16 12:51:09,969:ERROR:failed LIST_FILES:LIST !!!
