@@ -3,7 +3,7 @@ import socket
 import sys
 import logging
 
-BUFFER_SIZE = 4080 # buffer size
+BUFFER_SIZE = 1024 # buffer size
 FORMAT = "utf-8"
 VERBOSE = True
 
@@ -41,6 +41,22 @@ class FTP_Client:
             elif part == "\n":
                 break
         return line
+
+    def buffered_readLine_pasv(self):
+        """
+        Read single line from server
+        """
+        try:
+            line = ""
+            while True:
+                part = self.pasv_socket.recv(1).decode(FORMAT)
+                if part != "\n":
+                    line+=part
+                elif part == "\n":
+                    break
+            return line
+        except:
+            logging.error("Failed at readline pasv")
     
     def read_multiple_line(self):
         """
@@ -61,6 +77,7 @@ class FTP_Client:
         """
         try:
             self.socket.connect((self.HOST, self.PORT))
+            self.socket.settimeout(5)
             print(self.buffered_readLine())
             logging.info("Connection to the distant ftp server succeed {0}:{1} as {2}".format(self.HOST, self.PORT, self.USERNAME))
         except socket.error:
@@ -94,7 +111,6 @@ class FTP_Client:
         except:
             logging.error("failed CONNECT:PASS !!!")
             return
-
 
     def PASV(self):
         """
@@ -137,8 +153,9 @@ class FTP_Client:
         Connect to the ftp server, with different host/port
         """
         try:
-            self.new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.new_socket.connect((host, int(port)))
+            self.pasv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.pasv_socket.connect((host, int(port)))
+            self.pasv_socket.settimeout(5)
             logging.info("Connection to the distant ftp server succeed {0}:{1} as {2}".format(host, port, self.USERNAME))
         except socket.error:
             logging.error("connection to the distant server failed {0}:{1}".format(host, port))
@@ -158,15 +175,9 @@ class FTP_Client:
             logging.error("failled CONNECT:PORT !!!")
             return
 
-
     def list_files(self):
         """
         LIST: Show information of a specific file/folder or current folder
-
-        this method will send a LIST commande to the FTP server and process the data received acordingly:
-            -
-            -
-            -
         """
         try:
             # send LIST cmd to the ftp server
@@ -179,7 +190,6 @@ class FTP_Client:
         except:
             logging.error("failed LIST_FILES:LIST !!!")
             raise
-    
   
     def HELP(self):
         """
@@ -208,6 +218,18 @@ class FTP_Client:
         except:
             logging.error("failed HELP:{0} !!!".format(cmd_str))
             return
+        
+    def readFromPassivSocket(self):
+        try:
+            logging.info("Reading from passive socket...")
+            try:
+                data, address = self.pasv_socket.recvfrom(BUFFER_SIZE)
+                print(data.decode(FORMAT))
+            except socket.timeout:
+                print("Didn't receive data! [Timeout 5s]")
+        except:
+            logging.error("failed Read Passive Socket !!!")
+        pass
 
 def main():
     """
@@ -241,6 +263,7 @@ def main():
     ftp_client.PASV()
     #ftp_client.CMD_PORT(21)
     ftp_client.list_files()
+    ftp_client.readFromPassivSocket()
 
 if __name__ == "__main__":
     main()
