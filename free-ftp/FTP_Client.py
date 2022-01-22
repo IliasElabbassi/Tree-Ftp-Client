@@ -1,8 +1,10 @@
+from copyreg import pickle
 from distutils.log import error
 import socket
 import sys
 import logging
 from Tree import Node
+import pickle
 
 BUFFER_SIZE = 1024 # buffer size
 FORMAT = "utf-8"
@@ -190,10 +192,12 @@ class FTP_Client:
             self.socket.send("LIST\r\n".encode(FORMAT))
             print(self.buffered_readLine())
             print(self.buffered_readLine())
-            self.readFromPassivSocket() # read from the new socket generated in PASV
+            data = self.readFromPassivSocket() # read from the new socket generated in PASV
+            res = self.gotFilesFromData(data)
+            self.initTree(res)
         except:
             logging.error("failed LIST_FILES:LIST !!!")
-  
+            raise
     def HELP(self):
         """
         HELP: display all the cmd I can make
@@ -237,13 +241,49 @@ class FTP_Client:
             logging.info("Reading from passive socket...")
             data, address = self.pasv_socket.recvfrom(BUFFER_SIZE) # read until there is no data
             print(data.decode(FORMAT))
+            # output = open("output.pickle", "wb")
+            # pickle.dump(data, output)
+            # output.close()
             return data
         except socket.timeout:
             logging.error("Didn't receive data! [Timeout 5s]")
 
     def gotFilesFromData(self, data):
-        
-        pass
+        logging.info("Parsing data from list files...")
+        data_split = data.decode(FORMAT).split("\n")
+
+        file_dir = []
+        dir = []
+        for ele in data_split:
+            dir.append(ele.split(" ")[-1].replace("\r", ""))
+            file_dir.append(ele.split(" ")[0][:1])
+            print(dir[-1])
+        dir.pop()
+        file_dir.pop()
+
+        result = []
+        for i in range(0,len(dir)-1):
+            result.append((
+                file_dir[i],
+                dir[i]
+            ))
+
+        return result
+
+    def initTree(self, dir):
+        logging.info("Creating the tree of files...")
+        for ele in dir:
+            if ele[0] == "d": # directory
+                new_dir = Node(
+                    "{0}: {1}".format(ele[0], ele[1])
+                )
+                self.root.add_child(new_dir)
+            else: #file
+                new_file = Node(
+                    "{0}: {1}".format(ele[0], ele[1])
+                )
+                self.root.add_child(new_file)
+
 
 def main():
     """
@@ -273,13 +313,11 @@ def main():
     ftp_client.connect()
     ftp_client.USER()
     ftp_client.PASS()
+
     ftp_client.list_files()
 
-    ftp_client.CWD("cdimage")
-    ftp_client.list_files()
+    ftp_client.root.print_tree()
 
-    ftp_client.CWD("..")
-    ftp_client.list_files()
 
 if __name__ == "__main__":
     main()
