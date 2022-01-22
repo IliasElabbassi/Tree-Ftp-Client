@@ -2,6 +2,7 @@ from distutils.log import error
 import socket
 import sys
 import logging
+from Tree import Node
 
 BUFFER_SIZE = 1024 # buffer size
 FORMAT = "utf-8"
@@ -15,6 +16,7 @@ class FTP_Client:
         USERNAME : username set form the conenction
         socket : the socket that permit us to send and receiv data from the ftp server
         """
+        self.root = Node("Files")
         self.PORT = 21 
         self.HOST = host
         self.USERNAME = username
@@ -222,13 +224,14 @@ class FTP_Client:
     def readFromPassivSocket(self):
         try:
             logging.info("Reading from passive socket...")
-            try:
-                data, address = self.pasv_socket.recvfrom(BUFFER_SIZE)
-                print(data.decode(FORMAT))
-            except socket.timeout:
-                print("Didn't receive data! [Timeout 5s]")
-        except:
-            logging.error("failed Read Passive Socket !!!")
+            data, address = self.pasv_socket.recvfrom(BUFFER_SIZE)
+            print(data.decode(FORMAT))
+            return data
+        except socket.timeout:
+            logging.error("Didn't receive data! [Timeout 5s]")
+
+    def gotFilesFromData(self, data):
+        
         pass
 
 def main():
