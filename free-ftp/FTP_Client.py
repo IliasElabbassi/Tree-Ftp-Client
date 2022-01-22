@@ -193,8 +193,7 @@ class FTP_Client:
             print(self.buffered_readLine())
             print(self.buffered_readLine())
             data = self.readFromPassivSocket() # read from the new socket generated in PASV
-            res = self.gotFilesFromData(data)
-            self.initTree(res)
+            return data
         except:
             logging.error("failed LIST_FILES:LIST !!!")
             raise
@@ -269,21 +268,27 @@ class FTP_Client:
             ))
 
         return result
+    
+    def generateData(self, data):
+        res = self.gotFilesFromData(data)
+        self.createChildren(res)
 
-    def initTree(self, dir):
+    def createChildren(self, dir):
         logging.info("Creating the tree of files...")
         for ele in dir:
             if ele[0] == "d": # directory
-                new_dir = Node(
-                    "{0}: {1}".format(ele[0], ele[1])
-                )
+                new_dir = Node(ele[1], ele[0])
                 self.root.add_child(new_dir)
             else: #file
-                new_file = Node(
-                    "{0}: {1}".format(ele[0], ele[1])
-                )
+                new_file = Node(ele[1], ele[0])
                 self.root.add_child(new_file)
 
+    def listAllFiles(self):
+        for child in self.root.children:
+            self.CWD(child.data)
+            self.list_files()
+            
+        pass
 
 def main():
     """

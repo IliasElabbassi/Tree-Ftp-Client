@@ -1,6 +1,10 @@
+from re import S
+
+
 class Node:
-    def __init__(self, data):
+    def __init__(self, data, type=""):
         self.data = data
+        self.type = type
         self.children = []
         self.parent = None
 
@@ -19,7 +23,7 @@ class Node:
 
     def print_tree(self):
         prefix = "_" * self.getLevel() * 3
-        print(prefix + self.data)
+        print(prefix +self.type+": "+self.data)
         if self.children:
             for child in self.children:
                 child.print_tree()
