@@ -8,6 +8,6 @@ data_split[len(data_split)-1] = data_split[len(data_split)-1].replace(".","")
 
 values = []
 for ele in data_split:
-    values.append(int(ele)) 
+    values.append(int(ele))
 
 print(values)
