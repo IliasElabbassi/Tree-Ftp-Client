@@ -191,7 +191,6 @@ class FTP_Client:
             print(self.buffered_readLine())
         except:
             logging.error("failed LIST_FILES:LIST !!!")
-            raise
   
     def HELP(self):
         """
@@ -221,6 +220,17 @@ class FTP_Client:
             logging.error("failed HELP:{0} !!!".format(cmd_str))
             return
         
+    def CWD(self, to):
+        try:
+            if VERBOSE:
+                print("$ CWD {0}".format(to))
+            logging.info("send CWD {0} cmd".format(to))
+            self.socket.send("CWD {0}\r\n".format(to).encode(FORMAT))
+            print(self.buffered_readLine())
+        except:
+            logging.error("faield CWD !!")
+            raise
+
     def readFromPassivSocket(self):
         try:
             logging.info("Reading from passive socket...")
@@ -265,6 +275,16 @@ def main():
     #ftp_client.HELP()
     ftp_client.PASV()
     #ftp_client.CMD_PORT(21)
+    ftp_client.list_files()
+    ftp_client.readFromPassivSocket()
+
+    ftp_client.CWD("cdimage")
+    ftp_client.PASV()
+    ftp_client.list_files()
+    ftp_client.readFromPassivSocket()
+
+    ftp_client.CWD("..")
+    ftp_client.PASV()
     ftp_client.list_files()
     ftp_client.readFromPassivSocket()
 
