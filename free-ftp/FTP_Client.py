@@ -182,13 +182,15 @@ class FTP_Client:
         LIST: Show information of a specific file/folder or current folder
         """
         try:
+            self.PASV() # ask for a new socket to read from
             # send LIST cmd to the ftp server
             if VERBOSE:
                 print("$ LIST")
-            logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT))
+            logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT)) # ask to send the list of files
             self.socket.send("LIST\r\n".encode(FORMAT))
             print(self.buffered_readLine())
             print(self.buffered_readLine())
+            self.readFromPassivSocket() # read from the new socket generated in PASV
         except:
             logging.error("failed LIST_FILES:LIST !!!")
   
@@ -225,16 +227,15 @@ class FTP_Client:
             if VERBOSE:
                 print("$ CWD {0}".format(to))
             logging.info("send CWD {0} cmd".format(to))
-            self.socket.send("CWD {0}\r\n".format(to).encode(FORMAT))
+            self.socket.send("CWD {0}\r\n".format(to).encode(FORMAT)) # ask to change current working directory
             print(self.buffered_readLine())
         except:
             logging.error("faield CWD !!")
-            raise
 
     def readFromPassivSocket(self):
         try:
             logging.info("Reading from passive socket...")
-            data, address = self.pasv_socket.recvfrom(BUFFER_SIZE)
+            data, address = self.pasv_socket.recvfrom(BUFFER_SIZE) # read until there is no data
             print(data.decode(FORMAT))
             return data
         except socket.timeout:
@@ -272,21 +273,13 @@ def main():
     ftp_client.connect()
     ftp_client.USER()
     ftp_client.PASS()
-    #ftp_client.HELP()
-    ftp_client.PASV()
-    #ftp_client.CMD_PORT(21)
     ftp_client.list_files()
-    ftp_client.readFromPassivSocket()
 
     ftp_client.CWD("cdimage")
-    ftp_client.PASV()
     ftp_client.list_files()
-    ftp_client.readFromPassivSocket()
 
     ftp_client.CWD("..")
-    ftp_client.PASV()
     ftp_client.list_files()
-    ftp_client.readFromPassivSocket()
 
 if __name__ == "__main__":
     main()

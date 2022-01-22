@@ -90,3 +90,20 @@
 2022-01-22 21:38:44,386:INFO:Connection to the distant ftp server succeed 91.189.88.152:62146 as anonymous
 2022-01-22 21:38:44,387:INFO:send LIST cmd to ftp.ubuntu.com:21
 2022-01-22 21:38:44,514:INFO:Reading from passive socket...
+2022-01-22 21:44:18,937:INFO:Connection to the distant ftp server succeed ftp.ubuntu.com:21 as anonymous
+2022-01-22 21:44:18,938:INFO:send USER anonymous cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:18,984:INFO:send PASS cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,036:INFO:send PASV cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,096:INFO:Connection to the distant ftp server succeed 91.189.88.142:60593 as anonymous
+2022-01-22 21:44:19,096:INFO:send LIST cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,165:INFO:Reading from passive socket...
+2022-01-22 21:44:19,167:INFO:send CWD cdimage cmd
+2022-01-22 21:44:19,225:INFO:send PASV cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,341:INFO:Connection to the distant ftp server succeed 91.189.88.142:36003 as anonymous
+2022-01-22 21:44:19,341:INFO:send LIST cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,490:INFO:Reading from passive socket...
+2022-01-22 21:44:19,491:INFO:send CWD .. cmd
+2022-01-22 21:44:19,553:INFO:send PASV cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,617:INFO:Connection to the distant ftp server succeed 91.189.88.142:36217 as anonymous
+2022-01-22 21:44:19,617:INFO:send LIST cmd to ftp.ubuntu.com:21
+2022-01-22 21:44:19,684:INFO:Reading from passive socket...
