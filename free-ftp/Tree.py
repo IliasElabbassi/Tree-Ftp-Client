@@ -5,6 +5,7 @@ class Node:
     def __init__(self, data, type=""):
         self.data = data
         self.type = type
+        self.done = False
         self.children = []
         self.parent = None
 
@@ -22,7 +23,7 @@ class Node:
         return level
 
     def print_tree(self):
-        prefix = "_" * self.getLevel() * 3
+        prefix = "_" * self.getLevel() * 6
         print(prefix +self.type+": "+self.data)
         if self.children:
             for child in self.children:

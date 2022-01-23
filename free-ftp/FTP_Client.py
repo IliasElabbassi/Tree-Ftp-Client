@@ -1,8 +1,7 @@
-from copyreg import pickle
-from distutils.log import error
 import socket
 import sys
 import logging
+
 from Tree import Node
 import pickle
 
@@ -19,6 +18,7 @@ class FTP_Client:
         socket : the socket that permit us to send and receiv data from the ftp server
         """
         self.root = Node("Files")
+        self.level = 0
         self.PORT = 21 
         self.HOST = host
         self.USERNAME = username
@@ -32,7 +32,7 @@ class FTP_Client:
             level=logging.DEBUG,
             format='%(asctime)s:%(levelname)s:%(message)s'
         )
-
+    
     def buffered_readLine(self):
         """
         Read single line from server
@@ -72,7 +72,7 @@ class FTP_Client:
             if data.__contains__('OK.'):
                 read = False
             else:
-                print(data)
+                # print(data)
                 data = self.buffered_readLine()
 
     def connect(self):
@@ -82,7 +82,10 @@ class FTP_Client:
         try:
             self.socket.connect((self.HOST, self.PORT))
             self.socket.settimeout(5)
-            print(self.buffered_readLine())
+            if VERBOSE:
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
             logging.info("Connection to the distant ftp server succeed {0}:{1} as {2}".format(self.HOST, self.PORT, self.USERNAME))
         except socket.error:
             logging.error("connection to the distant server failed {0}:{1}".format(self.HOST, self.PORT))
@@ -93,11 +96,13 @@ class FTP_Client:
         USER: set user name
         """
         try:
-            if VERBOSE:
-                print("$ USER")
             logging.info("send USER {0} cmd to {1}:{2}".format(self.USERNAME, self.HOST, self.PORT))
             self.socket.send("USER {0}\r\n".format(self.USERNAME).encode(FORMAT))
-            print(self.buffered_readLine())
+            if VERBOSE:
+                print("$ USER")
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
         except:
             logging.error("failed CONNECT:USER !!!")
             return
@@ -107,11 +112,14 @@ class FTP_Client:
         PASS: set a password
         """
         try:
-            if VERBOSE:
-                print("$ PASS")
+
             logging.info("send PASS cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("PASS RV\r\n".encode(FORMAT))
-            print(self.buffered_readLine())
+            if VERBOSE:
+                print("$ PASS")
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
         except:
             logging.error("failed CONNECT:PASS !!!")
             return
@@ -121,15 +129,17 @@ class FTP_Client:
         PASV: goes into passive mode
         """
         try:
-            if VERBOSE:
-                print("$ PASV")
             logging.info("send PASV cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("PASV\r\n".encode(FORMAT))
             data = self.buffered_readLine()
-            print(data)
             new = self.PASV_get_new_url(data)
-            print(new)
             self.connect_args(new[0], new[1])
+
+            if VERBOSE:
+                print("$ PASV")
+                print(data)
+                print(new)
+
         except BaseException:
             logging.error("failled CONNECT:PASV !!!")
             return
@@ -170,11 +180,14 @@ class FTP_Client:
         PORT: change port of the conenction
         """
         try:
-            if VERBOSE:
-                print("$ PORT {0}".format(port))
+
             logging.info("send PORT {0} cmd to {1}:{2}".format(port, self.HOST, self.PORT))
             self.socket.send("PORT {0}\r\n".format(port).encode(FORMAT))
-            print(self.buffered_readLine())
+            if VERBOSE:
+                print("$ PORT {0}".format(port))
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
         except BaseException:
             logging.error("failled CONNECT:PORT !!!")
             return
@@ -186,17 +199,21 @@ class FTP_Client:
         try:
             self.PASV() # ask for a new socket to read from
             # send LIST cmd to the ftp server
-            if VERBOSE:
-                print("$ LIST")
             logging.info("send LIST cmd to {0}:{1}".format(self.HOST, self.PORT)) # ask to send the list of files
             self.socket.send("LIST\r\n".encode(FORMAT))
-            print(self.buffered_readLine())
-            print(self.buffered_readLine())
             data = self.readFromPassivSocket() # read from the new socket generated in PASV
+
+            if VERBOSE:
+                print("$ LIST")
+                print(self.buffered_readLine())
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
+                self.buffered_readLine()
             return data
         except:
             logging.error("failed LIST_FILES:LIST !!!")
-            raise
+        
     def HELP(self):
         """
         HELP: display all the cmd I can make
@@ -276,40 +293,50 @@ class FTP_Client:
     def createChildren(self, dir):
         logging.info("Creating the tree of files...")
         for ele in dir:
-            if ele[0] == "d": # directory
-                new_dir = Node(ele[1], ele[0])
-                self.root.add_child(new_dir)
-            else: #file
-                new_file = Node(ele[1], ele[0])
-                self.root.add_child(new_file)
-
-    def listAllFiles(self):
-        for child in self.root.children:
-            self.CWD(child.data)
-            self.list_files()
-            
-        pass
-
-def main():
-    """
-    if len(sys.argv) < 3:
-        print("need args : HOST USERNAME")
-        sys.exit()
-
-    try:
-        if sys.argv[3] == "-v":
-            VERBOSE = True
-    except:
-        pass
-    """
+            new_dir = Node(ele[1], ele[0])
+            self.root.add_child(new_dir)
+        
+        self.root.done = True
     
+    def getAllFiles(self, stack):
+        import copy
+        stack_c = copy.copy(stack)
+        new_stack = []
+        
+        while len(stack_c) > 0:
+            stack_c.pop(0)
+            parent = stack.pop(0)
+            if not (parent.type == "d"):
+                continue
+            self.CWD(parent.data)
+            data = self.list_files()
+            res = self.gotFilesFromData(data)
+            for ele in res:
+                new_dir = Node(ele[1], ele[0])
+                parent.add_child(new_dir)
+                if ele[0] == "d":
+                    new_stack.append(new_dir)
+            stack.append(parent)
+            self.getAllFiles(parent.children)
+            self.CWD("..")
+    
+def main():
+    args = ""
+
+    for i in range(0, len(sys.argv)):
+        args +=  sys.argv[i]+" "
+
+    args.lower()
+
+    if args.__contains__("-v") or args.__contains__("--v") or args.__contains__("-verbose"):
+        VERBOSE = True
+        
     try:
         #host = "ftp.free.fr"
         host = sys.argv[1]
         username = sys.argv[2]
     except:
         pass
-
 
     ftp_client = FTP_Client(
         host="ftp.ubuntu.com",  
@@ -319,8 +346,11 @@ def main():
     ftp_client.USER()
     ftp_client.PASS()
 
-    ftp_client.list_files()
+    data = ftp_client.list_files()
+    ftp_client.generateData(data)
+    
 
+    ftp_client.getAllFiles(ftp_client.root.children)
     ftp_client.root.print_tree()
 
 
