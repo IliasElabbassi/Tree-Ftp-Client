@@ -10,13 +10,14 @@ FORMAT = "utf-8"
 VERBOSE = True
 
 class FTP_Client:
-    def __init__(self, host, username):
+    def __init__(self, host, username, verbose=False):
         """
         PORT : to port of the ftp server
         HOST : the ip/url of the ftp server
         USERNAME : username set form the conenction
         socket : the socket that permit us to send and receiv data from the ftp server
         """
+        self.VERBOSE = verbose
         self.root = Node("Files")
         self.level = 0
         self.PORT = 21 
@@ -72,7 +73,8 @@ class FTP_Client:
             if data.__contains__('OK.'):
                 read = False
             else:
-                # print(data)
+                if self.VERBOSE:
+                    print(data)
                 data = self.buffered_readLine()
 
     def connect(self):
@@ -82,7 +84,7 @@ class FTP_Client:
         try:
             self.socket.connect((self.HOST, self.PORT))
             self.socket.settimeout(5)
-            if VERBOSE:
+            if self.VERBOSE:
                 print(self.buffered_readLine())
             else:
                 self.buffered_readLine()
@@ -98,7 +100,7 @@ class FTP_Client:
         try:
             logging.info("send USER {0} cmd to {1}:{2}".format(self.USERNAME, self.HOST, self.PORT))
             self.socket.send("USER {0}\r\n".format(self.USERNAME).encode(FORMAT))
-            if VERBOSE:
+            if self.VERBOSE:
                 print("$ USER")
                 print(self.buffered_readLine())
             else:
@@ -112,10 +114,9 @@ class FTP_Client:
         PASS: set a password
         """
         try:
-
             logging.info("send PASS cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("PASS RV\r\n".encode(FORMAT))
-            if VERBOSE:
+            if self.VERBOSE:
                 print("$ PASS")
                 print(self.buffered_readLine())
             else:
@@ -135,7 +136,7 @@ class FTP_Client:
             new = self.PASV_get_new_url(data)
             self.connect_args(new[0], new[1])
 
-            if VERBOSE:
+            if self.VERBOSE:
                 print("$ PASV")
                 print(data)
                 print(new)
@@ -183,7 +184,7 @@ class FTP_Client:
 
             logging.info("send PORT {0} cmd to {1}:{2}".format(port, self.HOST, self.PORT))
             self.socket.send("PORT {0}\r\n".format(port).encode(FORMAT))
-            if VERBOSE:
+            if self.VERBOSE:
                 print("$ PORT {0}".format(port))
                 print(self.buffered_readLine())
             else:
@@ -203,7 +204,7 @@ class FTP_Client:
             self.socket.send("LIST\r\n".encode(FORMAT))
             data = self.readFromPassivSocket() # read from the new socket generated in PASV
 
-            if VERBOSE:
+            if self.VERBOSE:
                 print("$ LIST")
                 print(self.buffered_readLine())
                 print(self.buffered_readLine())
@@ -219,7 +220,7 @@ class FTP_Client:
         HELP: display all the cmd I can make
         """
         try:
-            if VERBOSE:
+            if self.VERBOSE:
                 print("$ HELP")
             logging.info("send HELP cmd to {0}:{1}".format(self.HOST, self.PORT))
             self.socket.send("HELP\r\n".encode(FORMAT))
@@ -233,22 +234,26 @@ class FTP_Client:
         CMD: send cmd_str to ftp server
         """
         try:
-            if VERBOSE:
-                print("$ {0}".format(cmd_str))
             logging.info("send {0} cmd to {1}:{2}".format(cmd_str, self.HOST, self.PORT))
             self.socket.send("{0}\r\n".format(cmd_str).encode(FORMAT))
-            print(self.buffered_readLine())
+            if self.VERBOSE:
+                print("$ {0}".format(cmd_str))
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
         except:
             logging.error("failed HELP:{0} !!!".format(cmd_str))
             return
         
     def CWD(self, to):
         try:
-            if VERBOSE:
-                print("$ CWD {0}".format(to))
             logging.info("send CWD {0} cmd".format(to))
             self.socket.send("CWD {0}\r\n".format(to).encode(FORMAT)) # ask to change current working directory
-            print(self.buffered_readLine())
+            if self.VERBOSE:
+                print("$ CWD {0}".format(to))
+                print(self.buffered_readLine())
+            else:
+                self.buffered_readLine()
         except:
             logging.error("faield CWD !!")
 
@@ -256,7 +261,8 @@ class FTP_Client:
         try:
             logging.info("Reading from passive socket...")
             data, address = self.pasv_socket.recvfrom(BUFFER_SIZE) # read until there is no data
-            print(data.decode(FORMAT))
+            if self.VERBOSE:
+                print(data.decode(FORMAT))
             # output = open("output.pickle", "wb")
             # pickle.dump(data, output)
             # output.close()
@@ -273,7 +279,7 @@ class FTP_Client:
         for ele in data_split:
             dir.append(ele.split(" ")[-1].replace("\r", ""))
             file_dir.append(ele.split(" ")[0][:1])
-            print(dir[-1])
+            #print(dir[-1])
         dir.pop()
         file_dir.pop()
 
@@ -301,24 +307,22 @@ class FTP_Client:
     def getAllFiles(self, stack):
         import copy
         stack_c = copy.copy(stack)
-        new_stack = []
         
         while len(stack_c) > 0:
             stack_c.pop(0)
             parent = stack.pop(0)
-            if not (parent.type == "d"):
-                continue
-            self.CWD(parent.data)
-            data = self.list_files()
-            res = self.gotFilesFromData(data)
-            for ele in res:
-                new_dir = Node(ele[1], ele[0])
-                parent.add_child(new_dir)
-                if ele[0] == "d":
-                    new_stack.append(new_dir)
-            stack.append(parent)
-            self.getAllFiles(parent.children)
-            self.CWD("..")
+            if parent.type == "d":
+                self.CWD(parent.data)
+                data = self.list_files()
+                res = self.gotFilesFromData(data)
+                for ele in res:
+                    new_dir = Node(ele[1], ele[0])
+                    parent.add_child(new_dir)
+                stack.append(parent)
+                self.getAllFiles(parent.children)
+                self.CWD("..")
+            else:
+                stack.append(parent)
     
 def main():
     args = ""
@@ -331,16 +335,17 @@ def main():
     if args.__contains__("-v") or args.__contains__("--v") or args.__contains__("-verbose"):
         VERBOSE = True
         
-    try:
-        #host = "ftp.free.fr"
-        host = sys.argv[1]
-        username = sys.argv[2]
-    except:
-        pass
+    # try:
+    #     #host = "ftp.free.fr"
+    #     host = sys.argv[1]
+    #     username = sys.argv[2]
+    # except:
+    #     pass
 
     ftp_client = FTP_Client(
         host="ftp.ubuntu.com",  
-        username="anonymous"
+        username="anonymous",
+        verbose=VERBOSE
     )
     ftp_client.connect()
     ftp_client.USER()
