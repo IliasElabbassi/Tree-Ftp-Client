@@ -1,8 +1,6 @@
-from nntplib import NNTPDataError
 import socket
 import sys
 import logging
-from tkinter.messagebox import NO
 
 from Tree import Node
 import pickle
@@ -11,7 +9,7 @@ BUFFER_SIZE = 1024 # buffer size
 FORMAT = "utf-8"
 
 class FTP_Client:
-    def __init__(self, host, username, verbose=False):
+    def __init__(self, host, username, verbose=False, level=3):
         """
         PORT : to port of the ftp server
         HOST : the ip/url of the ftp server
@@ -19,6 +17,7 @@ class FTP_Client:
         socket : the socket that permit us to send and receiv data from the ftp server
         """
         self.VERBOSE = verbose
+        self.recursion_level= level
         self.root = Node("Files")
         self.level = 0
         self.PORT = 21 
@@ -256,7 +255,7 @@ class FTP_Client:
             else:
                 self.buffered_readLine()
         except:
-            logging.error("faield CWD !!")
+            logging.error("faield CWD {0}!!".format(to))
 
     def readFromPassivSocket(self):
         try:
@@ -272,26 +271,28 @@ class FTP_Client:
             logging.error("Didn't receive data! [Timeout 5s]")
 
     def gotFilesFromData(self, data):
-        logging.info("Parsing data from list files...")
-        data_split = data.decode(FORMAT).split("\n")
+        if data:
+            logging.info("Parsing data from list files...")
+            data_split = data.decode(FORMAT).split("\n")
 
-        file_dir = []
-        dir = []
-        for ele in data_split:
-            dir.append(ele.split(" ")[-1].replace("\r", ""))
-            file_dir.append(ele.split(" ")[0][:1])
-            #print(dir[-1])
-        dir.pop()
-        file_dir.pop()
+            file_dir = []
+            dir = []
+            for ele in data_split:
+                dir.append(ele.split(" ")[-1].replace("\r", ""))
+                file_dir.append(ele.split(" ")[0][:1])
+                #print(dir[-1])
+            dir.pop()
+            file_dir.pop()
 
-        result = []
-        for i in range(0,len(dir)-1):
-            result.append((
-                file_dir[i],
-                dir[i]
-            ))
+            result = []
+            for i in range(0,len(dir)-1):
+                result.append((
+                    file_dir[i],
+                    dir[i]
+                ))
+            return result
 
-        return result
+        return ""
     
     def generateData(self, data):
         res = self.gotFilesFromData(data)
@@ -305,10 +306,12 @@ class FTP_Client:
         
         self.root.done = True
     
-    def getAllFiles(self, stack):
+    def getAllFiles(self, stack, level=0):
         import copy
         stack_c = copy.copy(stack)
-        
+
+        if level >= self.recursion_level:
+            return
         while len(stack_c) > 0:
             stack_c.pop(0)
             parent = stack.pop(0)
@@ -320,15 +323,27 @@ class FTP_Client:
                     new_dir = Node(ele[1], ele[0])
                     parent.add_child(new_dir)
                 stack.append(parent)
-                self.getAllFiles(parent.children)
+                self.getAllFiles(parent.children, level=level+1)
                 self.CWD("..")
             else:
                 stack.append(parent)
     
+    def launch(self):
+        self.connect()
+        self.USER()
+        self.PASS()
+
+        data = self.list_files()
+        self.generateData(data)
+
+        self.getAllFiles(self.root.children)
+        self.root.print_tree()
+        
 def main():
     host = None
     username = None
     VERBOSE = False
+
     try:
         host = sys.argv[1]
         username = sys.argv[2]
@@ -337,28 +352,19 @@ def main():
         for i in range(0, len(sys.argv)):
             args +=  sys.argv[i]+" "
 
-        args.lower()
+        args = args.lower()
         if args.__contains__("-v") or args.__contains__("--v") or args.__contains__("-verbose"):
             VERBOSE = True
-
     except:
         print("We need the ftp server and username to launch !")
         return -1
 
     ftp_client = FTP_Client(
-        host=host, 
+        host=host,
         username=username,
         verbose=VERBOSE
-    )
-    ftp_client.connect()
-    ftp_client.USER()
-    ftp_client.PASS()
+    ).launch()
 
-    data = ftp_client.list_files()
-    ftp_client.generateData(data)    
-
-    ftp_client.getAllFiles(ftp_client.root.children)
-    ftp_client.root.print_tree()
 
 if __name__ == "__main__":
     main()
