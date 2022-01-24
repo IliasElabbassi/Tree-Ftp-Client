@@ -38,12 +38,12 @@ But you will probably need to change an import on the FTP_Client.py file (see FT
 
 ## Command implemented :
 
-**CMD** : you can pass ant cmd not implemented directly here
-**USER** : username cBouommand
-**PASS** : password command
-**PASV** : passive mode command
-**CWD** : change working directory command
-**LIST** : list files of the current directory
+**CMD** : you can pass ant cmd not implemented directly here<br>
+**USER** : username cBouommand<br>
+**PASS** : password command<br>
+**PASV** : passive mode command<br>
+**CWD** : change working directory command<br>
+**LIST** : list files of the current directory<br>
 
 ## More
 See **output.txt** inside the root directory for the output of the code above.
