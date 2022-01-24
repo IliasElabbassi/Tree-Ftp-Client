@@ -2,7 +2,8 @@ import socket
 import sys
 import logging
 
-from Tree import Node
+from TreeFtp import Tree # Comment this if you want to launch with setuptools
+# import Tree # Uncomment this if you want to launch without setuptools
 import pickle
 
 BUFFER_SIZE = 1024 # buffer size
@@ -15,12 +16,14 @@ class FTP_Client:
         HOST : the ip/url of the ftp server
         USERNAME : username set form the conenction
         socket : the socket that permit us to send and receiv data from the ftp server
+        verbose : if we need to show what is happening
+        level : level of recursion after the root directory; when exploring the files
         """
         self.VERBOSE = verbose
         self.recursion_level= level
-        self.root = Node("Files")
+        self.root = Tree.Node("Files")
         self.level = 0
-        self.PORT = 21 
+        self.PORT = 21
         self.HOST = host
         self.USERNAME = username
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -109,13 +112,13 @@ class FTP_Client:
             logging.error("failed CONNECT:USER !!!")
             return
 
-    def PASS(self):
+    def PASS(self, psw="RV"):
         """
         PASS: set a password
         """
         try:
             logging.info("send PASS cmd to {0}:{1}".format(self.HOST, self.PORT))
-            self.socket.send("PASS RV\r\n".encode(FORMAT))
+            self.socket.send("PASS {0}\r\n".format(psw).encode(FORMAT))
             if self.VERBOSE:
                 print("$ PASS")
                 print(self.buffered_readLine())
@@ -301,7 +304,7 @@ class FTP_Client:
     def createChildren(self, dir):
         logging.info("Creating the tree of files...")
         for ele in dir:
-            new_dir = Node(ele[1], ele[0])
+            new_dir = Tree.Node(ele[1], ele[0])
             self.root.add_child(new_dir)
         
         self.root.done = True
@@ -320,7 +323,7 @@ class FTP_Client:
                 data = self.list_files()
                 res = self.gotFilesFromData(data)
                 for ele in res:
-                    new_dir = Node(ele[1], ele[0])
+                    new_dir = Tree.Node(ele[1], ele[0])
                     parent.add_child(new_dir)
                 stack.append(parent)
                 self.getAllFiles(parent.children, level=level+1)
@@ -328,10 +331,10 @@ class FTP_Client:
             else:
                 stack.append(parent)
     
-    def launch(self):
+    def launch(self, psw="RV"):
         self.connect()
         self.USER()
-        self.PASS()
+        self.PASS(psw)
 
         data = self.list_files()
         self.generateData(data)

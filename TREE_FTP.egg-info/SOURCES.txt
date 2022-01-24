@@ -1,0 +1,11 @@
+MANIFEST.in
+README.md
+pyproject.toml
+setup.py
+TREE_FTP.egg-info/PKG-INFO
+TREE_FTP.egg-info/SOURCES.txt
+TREE_FTP.egg-info/dependency_links.txt
+TREE_FTP.egg-info/top_level.txt
+TreeFtp/FTP_Client.py
+TreeFtp/Tree.py
+TreeFtp/__init__.py
