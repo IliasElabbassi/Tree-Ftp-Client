@@ -67,3 +67,5 @@ ftp_client = FTP_Client.FTP_Client(
         verbose=VERBOSE,
     ).launch("my_password")
 ```
+
+For the demo look at "TreeFtp Demo.mkv"
