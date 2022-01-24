@@ -1,13 +1,14 @@
+from nntplib import NNTPDataError
 import socket
 import sys
 import logging
+from tkinter.messagebox import NO
 
 from Tree import Node
 import pickle
 
 BUFFER_SIZE = 1024 # buffer size
 FORMAT = "utf-8"
-VERBOSE = True
 
 class FTP_Client:
     def __init__(self, host, username, verbose=False):
@@ -325,26 +326,28 @@ class FTP_Client:
                 stack.append(parent)
     
 def main():
-    args = ""
+    host = None
+    username = None
+    VERBOSE = False
+    try:
+        host = sys.argv[1]
+        username = sys.argv[2]
+        args = ""
 
-    for i in range(0, len(sys.argv)):
-        args +=  sys.argv[i]+" "
+        for i in range(0, len(sys.argv)):
+            args +=  sys.argv[i]+" "
 
-    args.lower()
+        args.lower()
+        if args.__contains__("-v") or args.__contains__("--v") or args.__contains__("-verbose"):
+            VERBOSE = True
 
-    if args.__contains__("-v") or args.__contains__("--v") or args.__contains__("-verbose"):
-        VERBOSE = True
-        
-    # try:
-    #     #host = "ftp.free.fr"
-    #     host = sys.argv[1]
-    #     username = sys.argv[2]
-    # except:
-    #     pass
+    except:
+        print("We need the ftp server and username to launch !")
+        return -1
 
     ftp_client = FTP_Client(
-        host="ftp.ubuntu.com",  
-        username="anonymous",
+        host=host, 
+        username=username,
         verbose=VERBOSE
     )
     ftp_client.connect()
@@ -352,12 +355,10 @@ def main():
     ftp_client.PASS()
 
     data = ftp_client.list_files()
-    ftp_client.generateData(data)
-    
+    ftp_client.generateData(data)    
 
     ftp_client.getAllFiles(ftp_client.root.children)
     ftp_client.root.print_tree()
-
 
 if __name__ == "__main__":
     main()
